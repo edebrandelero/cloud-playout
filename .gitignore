@@ -3,6 +3,8 @@ dist/
 .env
 .env.*
 !.env.example
+media/
+output/
 *.log
 .DS_Store
 Thumbs.db
