@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Playout</title>
+  <link rel="stylesheet" href="/panel/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">▶</span>
+        <div>
+          <strong>Cloud Playout</strong>
+          <small>Painel de operação</small>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="channels">Canais</button>
+        <button class="nav-btn" data-view="media">Mídia</button>
+        <button class="nav-btn" data-view="playlists">Playlists</button>
+        <button class="nav-btn" data-view="playout">Playout</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="conn-status" class="badge badge-idle">Desconectado</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <label for="api-key">API Key</label>
+          <input id="api-key" type="password" placeholder="Bearer token" autocomplete="off">
+          <button id="save-key" class="btn btn-secondary">Salvar</button>
+        </div>
+        <div class="topbar-right">
+          <label for="channel-select">Canal ativo</label>
+          <select id="channel-select">
+            <option value="">— selecione —</option>
+          </select>
+        </div>
+      </header>
+
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- Canais -->
+      <section id="view-channels" class="view active">
+        <div class="view-header">
+          <h1>Canais</h1>
+          <button id="refresh-channels" class="btn btn-secondary">Atualizar</button>
+        </div>
+        <form id="channel-form" class="card form-grid">
+          <h2>Novo canal</h2>
+          <input name="name" placeholder="Nome do canal" required maxlength="120">
+          <input name="description" placeholder="Descrição (opcional)" maxlength="500">
+          <input name="outputUrl" placeholder="RTMP (opcional) — rtmp://..." maxlength="2048">
+          <button type="submit" class="btn btn-primary">Criar canal</button>
+        </form>
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>RTMP</th>
+                <th>Criado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="channels-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Mídia -->
+      <section id="view-media" class="view">
+        <div class="view-header">
+          <h1>Mídia</h1>
+          <button id="refresh-media" class="btn btn-secondary">Atualizar</button>
+        </div>
+        <div class="card">
+          <h2>Upload</h2>
+          <div id="dropzone" class="dropzone">
+            <p>Arraste um arquivo ou clique para selecionar</p>
+            <input id="file-input" type="file" accept=".mp4,.mov,.mkv,.webm,.mp3,.wav,.m4a,.aac" hidden>
+          </div>
+          <div id="upload-progress" class="upload-progress hidden"></div>
+        </div>
+        <div class="card">
+          <h2>Arquivos no storage</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Arquivo</th>
+                <th>Tipo</th>
+                <th>Tamanho</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="storage-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Assets registrados</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Path</th>
+                <th>Tipo</th>
+                <th>Duração</th>
+              </tr>
+            </thead>
+            <tbody id="assets-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Playlists -->
+      <section id="view-playlists" class="view">
+        <div class="view-header">
+          <h1>Playlists</h1>
+          <button id="refresh-playlists" class="btn btn-secondary">Atualizar</button>
+        </div>
+        <form id="playlist-form" class="card form-grid">
+          <h2>Nova playlist</h2>
+          <input name="name" placeholder="Nome da playlist" required maxlength="120">
+          <button type="submit" class="btn btn-primary">Criar playlist</button>
+        </form>
+        <div id="playlists-list" class="playlists-grid"></div>
+      </section>
+
+      <!-- Playout -->
+      <section id="view-playout" class="view">
+        <div class="view-header">
+          <h1>Playout</h1>
+          <button id="refresh-playout" class="btn btn-secondary">Atualizar status</button>
+        </div>
+        <div class="playout-layout">
+          <div class="card playout-controls">
+            <h2>Controles</h2>
+            <div class="control-row">
+              <select id="playout-playlist">
+                <option value="">— playlist —</option>
+              </select>
+              <button id="playout-start" class="btn btn-primary">Iniciar</button>
+              <button id="playout-pause" class="btn btn-secondary">Pausar</button>
+              <button id="playout-resume" class="btn btn-secondary">Retomar</button>
+              <button id="playout-skip" class="btn btn-secondary">Pular</button>
+              <button id="playout-stop" class="btn btn-danger">Parar</button>
+            </div>
+            <div id="playout-status" class="status-panel">
+              <p>Selecione um canal para ver o status.</p>
+            </div>
+          </div>
+          <div class="card preview-card">
+            <h2>Preview HLS</h2>
+            <video id="hls-player" controls muted playsinline></video>
+            <p id="hls-url" class="muted"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/panel/app.js" type="module"></script>
+</body>
+</html>

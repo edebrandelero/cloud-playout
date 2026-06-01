@@ -129,7 +129,9 @@ curl -X POST http://localhost:3000/assets -H "Content-Type: application/json" -d
 2. ~~**Scheduler** — agendamento e fila de reprodução~~
 3. ~~**Engine de playout** — integração com FFmpeg para saída RTMP/HLS~~
 4. ~~**Storage** — upload e gestão de mídia (S3 ou local)~~
-5. **Painel web** — interface para operação do playout
+5. ~~**Painel web** — interface para operação do playout~~
+
+Acesse o painel em **http://localhost:3000/panel/** (rota pública; a API continua protegida por API key).
 
 ## Segurança
 
@@ -197,4 +199,7 @@ src/
     local.ts            # Upload seguro local
   plugins/
     security.ts         # Helmet + rate limit
+    static.ts           # Painel web estático
+public/
+  panel/                # UI de operação
 ```

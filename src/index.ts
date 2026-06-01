@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import { ffmpegEngine, loadEngineConfig } from "./engine/index.js";
 import securityPlugin from "./plugins/security.js";
+import staticPlugin from "./plugins/static.js";
 import { assetRoutes } from "./routes/assets.js";
 import { channelRoutes } from "./routes/channels.js";
 import { hlsRoutes } from "./routes/hls.js";
@@ -89,6 +90,7 @@ await app.register(playlistRoutes);
 await app.register(schedulerRoutes);
 await app.register(storageRoutes);
 await app.register(hlsRoutes);
+await app.register(staticPlugin);
 
 const shutdown = async () => {
   ffmpegEngine.stopAll();

@@ -36,6 +36,7 @@ export function isPublicPath(url: string): boolean {
   const path = url.split("?")[0] ?? url;
 
   if (path === "/health") return true;
+  if (path === "/panel" || path.startsWith("/panel/")) return true;
   if (/^\/channels\/[0-9a-f-]{36}\/hls\//i.test(path)) return true;
 
   return false;
