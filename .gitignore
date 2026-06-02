@@ -5,6 +5,7 @@ dist/
 !.env.example
 media/
 output/
+data/
 *.log
 .DS_Store
 Thumbs.db

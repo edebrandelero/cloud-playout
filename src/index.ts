@@ -1,4 +1,6 @@
 import Fastify from "fastify";
+import { closeDatabase, initDatabase } from "./db/index.js";
+import { getDatabasePath } from "./db/config.js";
 import { ffmpegEngine, loadEngineConfig } from "./engine/index.js";
 import securityPlugin from "./plugins/security.js";
 import staticPlugin from "./plugins/static.js";
@@ -12,6 +14,8 @@ import { isValidationError, loadSecurityConfig } from "./security/index.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const securityConfig = loadSecurityConfig();
+
+initDatabase();
 
 const app = Fastify({
   logger: true,
@@ -40,6 +44,7 @@ app.get("/health", async () => {
     service: "cloud-playout",
     engine: config.mode,
     auth: securityConfig.requireAuth,
+    database: getDatabasePath(),
   };
 });
 
@@ -51,8 +56,10 @@ app.setErrorHandler((error, _request, reply) => {
     return;
   }
 
-  if (message === "Asset already in playlist") {
-    reply.code(409).send({ error: message });
+  if (message === "Asset already in playlist" || message.includes("UNIQUE constraint")) {
+    reply.code(409).send({
+      error: message.includes("UNIQUE") ? "Resource already exists" : message,
+    });
     return;
   }
 
@@ -94,6 +101,7 @@ await app.register(staticPlugin);
 
 const shutdown = async () => {
   ffmpegEngine.stopAll();
+  closeDatabase();
   await app.close();
   process.exit(0);
 };

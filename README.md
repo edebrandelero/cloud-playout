@@ -25,7 +25,7 @@ Servidor em `http://localhost:3000`. Health check: `GET /health`.
 
 ## API REST
 
-Armazenamento in-memory (reinicia ao parar o servidor).
+Dados persistidos em **SQLite** (`DATABASE_PATH`). Canais, assets e playlists sobrevivem a reinícios do servidor. O estado de playout (playing/paused) continua em memória durante a execução.
 
 ### Canais
 
@@ -130,8 +130,18 @@ curl -X POST http://localhost:3000/assets -H "Content-Type: application/json" -d
 3. ~~**Engine de playout** — integração com FFmpeg para saída RTMP/HLS~~
 4. ~~**Storage** — upload e gestão de mídia (S3 ou local)~~
 5. ~~**Painel web** — interface para operação do playout~~
+6. ~~**Persistência** — SQLite para canais, assets e playlists~~
+7. **Deploy** — Docker, variáveis de ambiente e CI/CD
 
 Acesse o painel em **http://localhost:3000/panel/** (rota pública; a API continua protegida por API key).
+
+### Banco de dados
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `DATABASE_PATH` | `./data/cloud-playout.db` | Arquivo SQLite |
+
+A pasta `data/` é criada automaticamente na primeira execução.
 
 ## Segurança
 
@@ -175,7 +185,10 @@ curl -X POST http://localhost:3000/storage/upload \
 src/
   index.ts              # Entry point Fastify
   types.ts              # Tipos de domínio
-  store.ts              # Persistência in-memory
+  store.ts              # Repositório de dados
+  db/
+    index.ts            # SQLite (better-sqlite3)
+    schema.ts
   routes/
     channels.ts
     assets.ts
