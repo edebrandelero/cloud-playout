@@ -131,9 +131,63 @@ curl -X POST http://localhost:3000/assets -H "Content-Type: application/json" -d
 4. ~~**Storage** — upload e gestão de mídia (S3 ou local)~~
 5. ~~**Painel web** — interface para operação do playout~~
 6. ~~**Persistência** — SQLite para canais, assets e playlists~~
-7. **Deploy** — Docker, variáveis de ambiente e CI/CD
+7. ~~**Deploy** — Docker, variáveis de ambiente e CI/CD~~
 
 Acesse o painel em **http://localhost:3000/panel/** (rota pública; a API continua protegida por API key).
+
+## Docker
+
+### Requisitos
+
+- [Docker](https://www.docker.com/) e Docker Compose v2
+
+### Subir em produção
+
+```bash
+cp .env.example .env
+# Defina API_KEY com valor forte antes de subir
+
+docker compose up --build -d
+docker compose logs -f
+```
+
+| URL | Descrição |
+|-----|-----------|
+| http://localhost:3000/panel/ | Painel web |
+| http://localhost:3000/health | Health check |
+
+### Volumes
+
+| Volume | Caminho no container | Conteúdo |
+|--------|-------------------|----------|
+| `playout-data` | `/app/data` | Banco SQLite |
+| `playout-media` | `/app/media` | Arquivos de mídia |
+| `playout-output` | `/app/output` | Segmentos HLS |
+
+### Variáveis no container
+
+O `docker-compose.yml` define paths absolutos para volumes. Sobrescreva no `.env`:
+
+| Variável | Valor no Docker |
+|----------|-----------------|
+| `API_KEY` | **Obrigatório** em produção |
+| `NODE_ENV` | `production` |
+| `DATABASE_PATH` | `/app/data/cloud-playout.db` |
+| `MEDIA_ROOT` | `/app/media` |
+| `HLS_OUTPUT_DIR` | `/app/output/hls` |
+
+### Comandos úteis
+
+```bash
+docker compose down          # Para o serviço
+docker compose down -v       # Para e remove volumes (apaga dados)
+docker compose ps
+docker compose exec playout sh
+```
+
+### CI
+
+GitHub Actions (`.github/workflows/ci.yml`) executa `typecheck`, `build` e `docker build` em cada push/PR na branch `main`.
 
 ### Banco de dados
 

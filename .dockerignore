@@ -1,0 +1,15 @@
+node_modules
+dist
+data
+media
+output
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.md
+.cursor
+terminals
+agent-tools
+agent-transcripts
